@@ -72,8 +72,8 @@ public class DependencyResolver {
 	
 	public Artifact resolve(WritableRepository repository, PomDependency dependency) throws IOException {
 		Artifact current = null;
-		// sometimes the version is not filled in cause it is centrally managed
-		if (dependency.getVersion() == null) {
+		// sometimes the version is not filled in cause it is centrally managed or it might contain a variable
+		if (dependency.getVersion() == null || dependency.getVersion().contains("${")) {
 			SortedSet<String> versions = repository.getVersions(dependency.getGroupId(), dependency.getArtifactId());
 			if (!versions.isEmpty()) {
 				current = repository.getArtifact(dependency.getGroupId(), dependency.getArtifactId(), versions.last(), false);

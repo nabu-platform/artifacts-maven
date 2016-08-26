@@ -145,7 +145,8 @@ public class MavenClassLoader extends LocalClassLoader {
 						if (hasFile(dependency, path)) {
 							// in some cases the version is null in the pom dependency declaration because it is centrally managed, we don't support this atm
 							String version = pomDependency.getVersion();
-							if (version == null) {
+							// if the version contains a variable, we don't resolve it atm
+							if (version == null || version.contains("${")) {
 								SortedSet<String> versions = mavenRepository.getVersions(dependency.getGroupId(), dependency.getArtifactId());
 								if (!versions.isEmpty()) {
 									version = versions.last();
