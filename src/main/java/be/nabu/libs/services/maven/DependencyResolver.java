@@ -82,6 +82,9 @@ public class DependencyResolver {
 		else {
 			current = repository.getArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(), false);
 		}
+		if (current == null && dependency.getOptional() != null && dependency.getOptional()) {
+			return current;
+		}
 		// if it doesn't exist or is a snapshot, refresh
 		if (current == null || (!updatedSnapshots.contains(dependency) && current.getVersion().endsWith("-SNAPSHOT") && updateSnapshots)) {
 			if (current == null) {

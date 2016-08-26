@@ -137,9 +137,12 @@ public class MavenClassLoader extends LocalClassLoader {
 					}
 					String key = pomDependency.getGroupId() + "/" + pomDependency.getArtifactId();
 					if (!provided.contains(key) && (pomDependency.getScope() == null || pomDependency.getScope().equals("compile") || pomDependency.getScope().equals("runtime"))) {
-						logger.debug("Checking dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId());
+						logger.debug("Checking dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId() + " for owner: " + pom.getGroupId() + "/" + pom.getArtifactId());
 						Artifact dependency = dependencyResolver.resolve((WritableRepository) mavenRepository, pomDependency);
 						if (dependency == null) {
+							if (pomDependency.getOptional() != null && pomDependency.getOptional()) {
+								continue;
+							}
 							throw new RuntimeException("Can not resolve pom dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId() + "/" + pomDependency.getVersion() + " for " + artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion());
 						}
 						if (hasFile(dependency, path)) {
@@ -177,6 +180,9 @@ public class MavenClassLoader extends LocalClassLoader {
 							Artifact dependency = dependencyResolver.resolve((WritableRepository) mavenRepository, pomDependency);
 //							Artifact dependency = mavenRepository.getArtifact(pomDependency.getGroupId(), pomDependency.getArtifactId(), pomDependency.getVersion(), false);
 							if (dependency == null) {
+								if (pomDependency.getOptional() != null && pomDependency.getOptional()) {
+									continue;
+								}
 								throw new RuntimeException("Can not resolve pom dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId() + "/" + pomDependency.getVersion());					
 							}
 							files.addAll(findFilesInDependencies(dependency, path, provided, nestedExclusions, stopAfterFirst));

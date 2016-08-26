@@ -4,6 +4,7 @@ public class PomDependency extends PomArtifact {
 	
 	private PomExclusions exclusions;
 	private String scope;
+	private Boolean optional;
 
 	public String getScope() {
 		return scope;
@@ -43,4 +44,12 @@ public class PomDependency extends PomArtifact {
 	public void setExclusions(PomExclusions exclusions) {
 		this.exclusions = exclusions;
 	}
+
+	public Boolean getOptional() {
+		return optional;
+	}
+	public void setOptional(Boolean optional) {
+		this.optional = optional;
+	}
+	
 }
