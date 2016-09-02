@@ -75,6 +75,9 @@ public class DependencyResolver {
 		if (groupId.contains("${")) {
 			boolean found = false;
 			for (String group : repository.getGroups()) {
+				if (group == null) {
+					continue;
+				}
 				if (repository.getArtifacts(group).contains(dependency.getArtifactId())) {
 					found = true;
 					groupId = group;
@@ -102,7 +105,7 @@ public class DependencyResolver {
 			return current;
 		}
 		// if it doesn't exist or is a snapshot, refresh
-		if (current == null || (!updatedSnapshots.contains(dependency) && current.getVersion().endsWith("-SNAPSHOT") && updateSnapshots)) {
+		if (dependency.getVersion() != null && (current == null || (!updatedSnapshots.contains(dependency) && current.getVersion().endsWith("-SNAPSHOT") && updateSnapshots))) {
 			if (current == null) {
 				logger.info("The pom dependency " + dependency.getGroupId() + "/" + dependency.getArtifactId() + " does not exist");
 			}
