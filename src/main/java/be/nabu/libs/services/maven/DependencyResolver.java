@@ -71,16 +71,32 @@ public class DependencyResolver {
 	}
 	
 	public Artifact resolve(WritableRepository repository, PomDependency dependency) throws IOException {
+		String groupId = dependency.getGroupId().trim();
+		if (groupId.contains("${")) {
+			boolean found = false;
+			for (String group : repository.getGroups()) {
+				if (repository.getArtifacts(group).contains(dependency.getArtifactId())) {
+					found = true;
+					groupId = group;
+					dependency.setGroupId(groupId);
+					break;
+				}
+			}
+			if (!found && dependency.getOptional() != null && dependency.getOptional()) {
+				return null;
+			}
+		}
 		Artifact current = null;
 		// sometimes the version is not filled in cause it is centrally managed or it might contain a variable
 		if (dependency.getVersion() == null || dependency.getVersion().contains("${")) {
-			SortedSet<String> versions = repository.getVersions(dependency.getGroupId(), dependency.getArtifactId());
+			SortedSet<String> versions = repository.getVersions(groupId, dependency.getArtifactId());
 			if (!versions.isEmpty()) {
-				current = repository.getArtifact(dependency.getGroupId(), dependency.getArtifactId(), versions.last(), false);
+				dependency.setVersion(versions.last());
+				current = repository.getArtifact(groupId, dependency.getArtifactId().trim(), versions.last().trim(), false);
 			}
 		}
 		else {
-			current = repository.getArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(), false);
+			current = repository.getArtifact(groupId, dependency.getArtifactId().trim(), dependency.getVersion().trim(), false);
 		}
 		if (current == null && dependency.getOptional() != null && dependency.getOptional()) {
 			return current;
@@ -97,7 +113,7 @@ public class DependencyResolver {
 			updatedSnapshots.add(dependency);
 			for (URI endpoint : endpoints) {
 				// path to the artifact
-				String path = dependency.getGroupId().replace('.', '/') + "/" + dependency.getArtifactId() + "/" + dependency.getVersion();
+				String path = groupId.replace('.', '/') + "/" + dependency.getArtifactId().trim() + "/" + dependency.getVersion().trim();
 				// path with the artifact
 				path += "/" + dependency.getArtifactId() + "-" + dependency.getVersion() + ".jar";
 				URI child = URIUtils.getChild(endpoint, path);
@@ -106,7 +122,7 @@ public class DependencyResolver {
 					URLConnection connection = getProxy() == null ? child.toURL().openConnection() : child.toURL().openConnection(getProxy());
 					InputStream input = connection.getInputStream();
 					try {
-						current = repository.create(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(), "jar", input, false);
+						current = repository.create(groupId, dependency.getArtifactId().trim(), dependency.getVersion().trim(), "jar", input, false);
 						break;
 					}
 					finally {
