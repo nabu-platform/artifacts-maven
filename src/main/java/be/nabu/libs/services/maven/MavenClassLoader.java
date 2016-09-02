@@ -1,5 +1,6 @@
 package be.nabu.libs.services.maven;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -293,7 +294,7 @@ public class MavenClassLoader extends LocalClassLoader {
 		}
 		logger.debug("Loading content from artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
 		// actually get it
-		ZipInputStream zip = new ZipInputStream(artifact.getContent());
+		ZipInputStream zip = new ZipInputStream(new BufferedInputStream(artifact.getContent()));
 		try {
 			ZipEntry entry = null;
 			while ((entry = zip.getNextEntry()) != null) {
