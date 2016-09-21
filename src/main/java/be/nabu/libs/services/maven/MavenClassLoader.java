@@ -115,7 +115,7 @@ public class MavenClassLoader extends LocalClassLoader {
 		if (blacklist.contains(path)) {
 			return files;
 		}
-		logger.debug("Check dependencies of artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
+		logger.trace("Check dependencies of artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
 		try {
 			Pom pom = poms.get(artifact);
 			if (pom == null) {
@@ -138,7 +138,7 @@ public class MavenClassLoader extends LocalClassLoader {
 					}
 					String key = pomDependency.getGroupId() + "/" + pomDependency.getArtifactId();
 					if (!provided.contains(key) && (pomDependency.getScope() == null || pomDependency.getScope().equals("compile") || pomDependency.getScope().equals("runtime"))) {
-						logger.debug("Checking dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId() + " for owner: " + pom.getGroupId() + "/" + pom.getArtifactId());
+						logger.trace("Checking dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId() + " for owner: " + pom.getGroupId() + "/" + pom.getArtifactId());
 						Artifact dependency = dependencyResolver.resolve((WritableRepository) mavenRepository, pomDependency);
 						if (dependency == null) {
 							if (pomDependency.getOptional() != null && pomDependency.getOptional()) {
@@ -206,7 +206,7 @@ public class MavenClassLoader extends LocalClassLoader {
 		if (!zipFiles.containsKey(artifact)) {
 			synchronized(zipFiles) {
 				if (!zipFiles.containsKey(artifact)) {
-					logger.debug("Scanning zipped files from artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
+					logger.trace("Scanning zipped files from artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
 					List<String> files = new ArrayList<String>();
 					ZipInputStream zip = new ZipInputStream(artifact.getContent());
 					try {
@@ -278,7 +278,7 @@ public class MavenClassLoader extends LocalClassLoader {
 					if (artifact != null && (artifact.getPackaging().equals("jar") || artifact.getPackaging().equals("bundle"))) {
 						byte [] bytes = findFile(artifact, path);
 						if (bytes != null) {
-							logger.debug("Found " + path + " outside of dependencies in " + artifact.getGroupId() + "/" + artifact.getArtifactId());
+							logger.trace("Found " + path + " outside of dependencies in " + artifact.getGroupId() + "/" + artifact.getArtifactId());
 							return bytes;
 						}
 					}
@@ -292,7 +292,7 @@ public class MavenClassLoader extends LocalClassLoader {
 		if (!zipFiles.containsKey(artifact)) {
 			throw new IOException("The artifact '" + artifact + "' has not been scanned yet");
 		}
-		logger.debug("Loading content from artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
+		logger.trace("Loading content from artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
 		// actually get it
 		ZipInputStream zip = new ZipInputStream(new BufferedInputStream(artifact.getContent()));
 		try {
