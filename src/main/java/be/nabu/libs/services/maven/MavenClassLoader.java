@@ -80,7 +80,6 @@ public class MavenClassLoader extends LocalClassLoader {
 		this.mavenArtifact = mavenArtifact;
 		this.dependencyResolver = dependencyResolver;
 	}
-	
 
 	@Override
 	protected Collection<String> findFiles(String fileName, boolean stopAfterFirst) {
@@ -127,6 +126,7 @@ public class MavenClassLoader extends LocalClassLoader {
 					}
 				}
 			}
+			logger.trace("Dependencies: " + pom.getDependencies());
 			// first look through the dependencies themselves
 			if (pom.getDependencies() != null) {
 				if (pom.getExclusions() != null && pom.getExclusions().getExclusions() != null) {
@@ -134,6 +134,7 @@ public class MavenClassLoader extends LocalClassLoader {
 				}
 				for (PomDependency pomDependency : pom.getDependencies().getDependencies()) {
 					if (isExcluded(pomDependency, exclusions)) {
+						logger.trace("Skipping excluded dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId());
 						continue;
 					}
 					String key = pomDependency.getGroupId() + "/" + pomDependency.getArtifactId();

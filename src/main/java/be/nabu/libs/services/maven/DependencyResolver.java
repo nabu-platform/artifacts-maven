@@ -10,10 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 import be.nabu.libs.maven.api.Artifact;
 import be.nabu.libs.maven.api.WritableRepository;
@@ -49,12 +52,20 @@ public class DependencyResolver {
 //		XMLBinding binding = new XMLBinding(new BeanType<Pom>(Pom.class), Charset.forName("UTF-8"));
 		InputStream input = artifact.getPom();
 		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setValidating(false);
+			factory.setNamespaceAware(false);
+			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			// allow no external access, as defined http://docs.oracle.com/javase/7/docs/api/javax/xml/XMLConstants.html#FEATURE_SECURE_PROCESSING an empty string means no protocols are allowed
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			Document parse = factory.newDocumentBuilder().parse(input);
+			
 			JAXBContext context = JAXBContext.newInstance(Pom.class);
-			return (Pom) context.createUnmarshaller().unmarshal(input);
+			return (Pom) context.createUnmarshaller().unmarshal(parse);
 //			return TypeUtils.getAsBean(binding.unmarshal(input, new Window[0]), Pom.class);
 		}
 		catch (Exception e) {
-			throw new IOException(e);
+			throw new RuntimeException(e);
 		}
 		finally {
 			input.close();

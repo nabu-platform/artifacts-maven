@@ -2,7 +2,7 @@ package be.nabu.libs.services.maven.pom;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "project", namespace = "http://maven.apache.org/POM/4.0.0")
+@XmlRootElement(name = "project")
 public class Pom extends PomArtifact {
 	
 	private PomArtifact parent;
