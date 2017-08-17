@@ -1,6 +1,5 @@
 package be.nabu.libs.services.maven;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +62,7 @@ public class MavenClassLoader extends LocalClassLoader {
 	/**
 	 * Keeps track of the entries in the zipfiles, this allows us to quickly pinpoint classes instead of having to crawl through zips for every lookup
 	 */
-	private Map<Artifact, List<String>> zipFiles = new HashMap<Artifact, List<String>>();
+	private Map<Artifact, Map<String, byte[]>> zipFiles = new HashMap<Artifact, Map<String, byte[]>>();
 	
 	private Map<String, Collection<String>> filesFound = new HashMap<String, Collection<String>>();
 	
@@ -208,7 +207,7 @@ public class MavenClassLoader extends LocalClassLoader {
 			synchronized(zipFiles) {
 				if (!zipFiles.containsKey(artifact)) {
 					logger.trace("Scanning zipped files from artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
-					List<String> files = new ArrayList<String>();
+					Map<String, byte[]> files = new HashMap<String, byte[]>();
 					ZipInputStream zip = new ZipInputStream(artifact.getContent());
 					try {
 						ZipEntry entry = null;
@@ -220,7 +219,7 @@ public class MavenClassLoader extends LocalClassLoader {
 							if (entryName.equals(path)) {
 								hasFile = true;
 							}
-							files.add(entryName);
+							files.put(entryName, toBytes(zip));
 						}
 					}
 					finally {
@@ -231,7 +230,7 @@ public class MavenClassLoader extends LocalClassLoader {
 			}
 		}
 		else {
-			hasFile = zipFiles.get(artifact).contains(path);
+			hasFile = zipFiles.get(artifact).containsKey(path);
 		}
 		return hasFile;
 	}
@@ -293,25 +292,27 @@ public class MavenClassLoader extends LocalClassLoader {
 		if (!zipFiles.containsKey(artifact)) {
 			throw new IOException("The artifact '" + artifact + "' has not been scanned yet");
 		}
-		logger.trace("Loading content from artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
-		// actually get it
-		ZipInputStream zip = new ZipInputStream(new BufferedInputStream(artifact.getContent()));
-		try {
-			ZipEntry entry = null;
-			while ((entry = zip.getNextEntry()) != null) {
-				String entryName = entry.getName();
-				if (entryName.startsWith("/")) {
-					entryName = entryName.substring(1);
-				}
-				if (entryName.equals(path)) {
-					return toBytes(zip);
-				}
-			}
-		}
-		finally {
-			zip.close();
-		}
-		return null;
+		return zipFiles.get(artifact).get(path);
+		
+//		logger.trace("Loading content from artifact " + artifact.getGroupId() + "/" + artifact.getArtifactId() + " for path: " + path);
+//		// actually get it
+//		ZipInputStream zip = new ZipInputStream(new BufferedInputStream(artifact.getContent()));
+//		try {
+//			ZipEntry entry = null;
+//			while ((entry = zip.getNextEntry()) != null) {
+//				String entryName = entry.getName();
+//				if (entryName.startsWith("/")) {
+//					entryName = entryName.substring(1);
+//				}
+//				if (entryName.equals(path)) {
+//					return toBytes(zip);
+//				}
+//			}
+//		}
+//		finally {
+//			zip.close();
+//		}
+//		return null;
 	}
 
 	public static byte[] toBytes(InputStream input) throws IOException {
