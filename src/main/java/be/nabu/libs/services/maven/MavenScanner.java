@@ -27,6 +27,7 @@ import be.nabu.libs.types.MultipleDefinedTypeResolver;
 import be.nabu.libs.types.SimpleTypeWrapperFactory;
 import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.DefinedTypeResolver;
+import be.nabu.libs.types.api.annotation.ComplexTypeDescriptor;
 import be.nabu.libs.types.java.BeanResolver;
 import be.nabu.utils.io.IOUtils;
 
@@ -120,7 +121,7 @@ public class MavenScanner {
 						try {
 							Class<?> clazz = loader.loadClass(name);
 							// if you have the root element annotation, add it
-							if (clazz.getAnnotation(XmlRootElement.class) != null) {
+							if (clazz.getAnnotation(XmlRootElement.class) != null || clazz.getAnnotation(ComplexTypeDescriptor.class) != null) {
 								DefinedType type = BeanResolver.getInstance().resolve(clazz);
 								children.put(getRelativeId(artifact.getGroupId(), type), type);
 							}
