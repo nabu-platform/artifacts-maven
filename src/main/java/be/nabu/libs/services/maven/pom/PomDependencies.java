@@ -17,4 +17,8 @@ public class PomDependencies {
 		this.dependencies = dependencies;
 	}
 
+	@Override
+	public String toString() {
+		return "PomDependencies" + dependencies;
+	}
 }

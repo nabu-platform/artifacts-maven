@@ -67,4 +67,8 @@ public class PomArtifact {
 		return true;
 	}
 	
+	@Override
+	public String toString() {
+		return groupId + ":" + artifactId + ":" + version;
+	}
 }
