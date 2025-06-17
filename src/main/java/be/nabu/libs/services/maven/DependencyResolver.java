@@ -47,6 +47,8 @@ public class DependencyResolver {
 	private Proxy proxy;
 	private List<PomDependency> updatedSnapshots = new ArrayList<PomDependency>();
 	private boolean updateSnapshots = true;
+	// provided artifacts (groupId:artifactId syntax)
+	private List<String> artifactsToIgnore;
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -121,6 +123,9 @@ public class DependencyResolver {
 			}
 		}
 		Artifact current = null;
+		if (artifactsToIgnore != null && artifactsToIgnore.contains(dependency.getGroupId() + ":" + dependency.getArtifactId())) {
+			return current;
+		}
 		// sometimes the version is not filled in cause it is centrally managed or it might contain a variable
 		if (dependency.getVersion() == null || dependency.getVersion().contains("${")) {
 			SortedSet<String> versions = repository.getVersions(groupId, dependency.getArtifactId());
@@ -177,5 +182,13 @@ public class DependencyResolver {
 
 	public void setUpdateSnapshots(boolean updateSnapshots) {
 		this.updateSnapshots = updateSnapshots;
+	}
+
+	public List<String> getArtifactsToIgnore() {
+		return artifactsToIgnore;
+	}
+
+	public void setArtifactsToIgnore(List<String> artifactsToIgnore) {
+		this.artifactsToIgnore = artifactsToIgnore;
 	}
 }
