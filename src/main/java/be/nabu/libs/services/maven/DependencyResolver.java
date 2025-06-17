@@ -191,4 +191,8 @@ public class DependencyResolver {
 	public void setArtifactsToIgnore(List<String> artifactsToIgnore) {
 		this.artifactsToIgnore = artifactsToIgnore;
 	}
+	
+	public boolean isIgnored(String groupId, String artifactId) {
+		return artifactsToIgnore != null && (artifactsToIgnore.contains(groupId) || artifactsToIgnore.contains(groupId + ":" + artifactId));
+	}
 }

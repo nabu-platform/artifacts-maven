@@ -161,6 +161,9 @@ public class MavenClassLoader extends LocalClassLoader {
 							if (pomDependency.getOptional() != null && pomDependency.getOptional()) {
 								continue;
 							}
+							else if (dependencyResolver.isIgnored(pomDependency.getGroupId(), pomDependency.getArtifactId())) {
+								continue;
+							}
 							throw new RuntimeException("Can not resolve pom dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId() + "/" + pomDependency.getVersion() + " for " + artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion());
 						}
 						if (hasFile(dependency, path)) {
@@ -199,6 +202,9 @@ public class MavenClassLoader extends LocalClassLoader {
 //							Artifact dependency = mavenRepository.getArtifact(pomDependency.getGroupId(), pomDependency.getArtifactId(), pomDependency.getVersion(), false);
 							if (dependency == null) {
 								if (pomDependency.getOptional() != null && pomDependency.getOptional()) {
+									continue;
+								}
+								else if (dependencyResolver.isIgnored(pomDependency.getGroupId(), pomDependency.getArtifactId())) {
 									continue;
 								}
 								throw new RuntimeException("Can not resolve pom dependency: " + pomDependency.getGroupId() + "/" + pomDependency.getArtifactId() + "/" + pomDependency.getVersion());					
