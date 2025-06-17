@@ -93,7 +93,10 @@ public class DependencyResolver {
 		Pom pom = parsePom(artifact);
 		if (pom.getDependencies() != null) {
 			for (PomDependency dependency : pom.getDependencies().getDependencies()) {
-				resolve(repository, dependency);
+				Artifact resolved = resolve(repository, dependency);
+				if (resolved == null) {
+					logger.warn("[" + artifact.getGroupId() + "::" + artifact.getArtifactId() + "] The pom dependency " + dependency.getGroupId() + "/" + dependency.getArtifactId() + " does not exist");
+				}
 			}
 		}
 	}
